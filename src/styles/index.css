@@ -10,3 +10,19 @@
     import 'relative/path/to/stylesheet.scss';
 
 */
+body{
+    background-color: rgb(243, 238, 231);
+    
+    }
+    
+    
+    .title{
+        color:rgb(238, 138, 235);
+        font-style: italic;
+        text-decoration: underline;
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+    
+    .trash {
+        color: red;
+    }
