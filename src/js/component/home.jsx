@@ -3,19 +3,19 @@ import React, { useEffect, useState } from "react";
 const Home = () => {
   const [tasks, setTasks] = useState([]);
   const api = "https://playground.4geeks.com/todo";
-
-  // Primero hacgo que la api cargue las los nombres en console.log al cargar la aplicacion
+  const lastApi = "/users/martopravia";
+  const myApi = `${api}${lastApi}`;
 
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        let response = await fetch(api + "/users/martopravia");
+        let response = await fetch(myApi);
         if (!response.ok) {
           throw new Error("Error, no cargó");
         }
         const data = await response.json();
         console.log(data.todos);
-        setTasks(data.todos)
+        setTasks(data.todos);
       } catch (error) {
         console.error("Error al obtener datos:", error);
       }
@@ -24,25 +24,22 @@ const Home = () => {
     fetchApi();
   }, []);
 
-  // const addTask = (e) => {
-  //   if (e.key === "Enter" && e.target.value !== "") {
-  //     setTasks([...tasks, e.target.value]);
-  //     e.target.value = "";
-  //   }
-  // };
   const addTask = async (e) => {
     if (e.key === "Enter" && e.target.value !== "") {
       const newTask = { label: e.target.value, done: false };
+      console.log(newTask);
       try {
-        const response = await fetch(api, {
+        const response = await fetch(`${api}/todos/martopravia`, {
           method: "POST",
           body: JSON.stringify(newTask),
           headers: { "Content-Type": "application/json" },
         });
+        console.log(response);
         if (!response.ok) throw new Error("Ocurrió un error al llevar data");
         const addedTask = await response.json();
-        setTasks(addTask);
+        setTasks((tasks) => tasks.concat(addedTask));
         e.target.value = "";
+        console.log(addedTask);
       } catch (error) {
         console.log("Fatalidad :", error);
       }
@@ -67,7 +64,10 @@ const Home = () => {
 
           <ul className="list-group">
             {tasks.map((task, index) => (
-              <li className="list-group-item d-flex justify-content-between" key={index}>
+              <li
+                className="list-group-item d-flex justify-content-between"
+                key={index}
+              >
                 {task.label}
                 <i className="bi bi-trash trash"></i>
               </li>
