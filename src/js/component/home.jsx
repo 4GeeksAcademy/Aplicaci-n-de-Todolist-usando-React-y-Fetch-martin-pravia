@@ -14,7 +14,6 @@ const Home = () => {
           throw new Error("Error, no cargó");
         }
         const data = await response.json();
-        console.log(data.todos);
         setTasks(data.todos);
       } catch (error) {
         console.error("Error al obtener datos:", error);
@@ -27,22 +26,54 @@ const Home = () => {
   const addTask = async (e) => {
     if (e.key === "Enter" && e.target.value !== "") {
       const newTask = { label: e.target.value, done: false };
-      console.log(newTask);
+
       try {
         const response = await fetch(`${api}/todos/martopravia`, {
-          method: "POST",
+          method: "POST", 
           body: JSON.stringify(newTask),
           headers: { "Content-Type": "application/json" },
         });
-        console.log(response);
-        if (!response.ok) throw new Error("Ocurrió un error al llevar data");
+        if (!response.ok) throw new Error("Error al agregar tarea");
+
         const addedTask = await response.json();
-        setTasks((tasks) => tasks.concat(addedTask));
-        e.target.value = "";
-        console.log(addedTask);
+        setTasks((tasks) => [...tasks, addedTask]);
+        e.target.value = ""; 
       } catch (error) {
-        console.log("Fatalidad :", error);
+        console.error("Fatalidad :", error);
       }
+    }
+  };
+
+  const deleteTaskIndiv = async (taskId) => {
+    try {
+      const response = await fetch(`${api}/todos/${taskId}`, {
+        method: "DELETE", // Usamos DELETE para eliminar la tarea
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error("Error al eliminar la tarea");
+
+      setTasks((tasks) => tasks.filter((task) => task.id !== taskId)); 
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const updateTask = async (taskId, newLabel) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, label: newLabel } : task
+    );
+
+    try {
+      const response = await fetch(`${api}/todos/${taskId}`, {
+        method: "PUT", // Usamos PUT para actualizar la tarea
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label: newLabel, done: false }),
+      });
+      if (!response.ok) throw new Error("Error al actualizar la tarea");
+      
+      setTasks(updatedTasks); 
+    } catch (error) {
+      console.error("Error al actualizar tarea:", error);
     }
   };
 
@@ -65,11 +96,28 @@ const Home = () => {
           <ul className="list-group">
             {tasks.map((task, index) => (
               <li
-                className="list-group-item d-flex justify-content-between"
-                key={index}
+                className="list-group-item d-flex justify-content-between align-items-center"
+                key={task.id} 
               >
-                {task.label}
-                <i className="bi bi-trash trash"></i>
+                {task.isEditing ? (
+                  <input
+                    type="text"
+                    defaultValue={task.label}
+                    onBlur={(e) => updateTask(task.id, e.target.value)} // Guardar al perder foco
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") updateTask(task.id, e.target.value);
+                    }}
+                    autoFocus
+                    className="form-control"
+                  />
+                ) : (
+                  <span>{task.label}</span>
+                )}
+                <i
+                  className="bi bi-trash trash"
+                  onClick={() => deleteTaskIndiv(task.id)} 
+                  style={{ cursor: "pointer" }}
+                ></i>
               </li>
             ))}
 
