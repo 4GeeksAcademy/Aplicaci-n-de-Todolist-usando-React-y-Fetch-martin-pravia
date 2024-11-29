@@ -36,7 +36,7 @@ const Home = () => {
         if (!response.ok) throw new Error("Error al agregar tarea");
 
         const addedTask = await response.json();
-        setTasks((tasks) => [...tasks, addedTask]);
+        setTasks((tasks) => [...tasks, addedTask]); 
         e.target.value = ""; 
       } catch (error) {
         console.error("Fatalidad :", error);
@@ -47,7 +47,7 @@ const Home = () => {
   const deleteTaskIndiv = async (taskId) => {
     try {
       const response = await fetch(`${api}/todos/${taskId}`, {
-        method: "DELETE", // Usamos DELETE para eliminar la tarea
+        method: "DELETE", 
         headers: { "Content-Type": "application/json" },
       });
       if (!response.ok) throw new Error("Error al eliminar la tarea");
@@ -65,7 +65,7 @@ const Home = () => {
 
     try {
       const response = await fetch(`${api}/todos/${taskId}`, {
-        method: "PUT", // Usamos PUT para actualizar la tarea
+        method: "PUT", 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ label: newLabel, done: false }),
       });
@@ -77,6 +77,25 @@ const Home = () => {
     }
   };
 
+  
+  const deleteAllTasks = async () => {
+    try {
+     
+      for (const task of tasks) {
+        const response = await fetch(`${api}/todos/${task.id}`, {
+          method: "DELETE", 
+          headers: { "Content-Type": "application/json" },
+        });
+  
+        if (!response.ok) throw new Error(`Error al eliminar la tarea con id ${task.id}`);
+      }
+  
+     
+      setTasks([]);
+    } catch (error) {
+      console.error("Error al eliminar todas las tareas:", error);
+    }
+  };
   return (
     <>
       <div className="row d-flex justify-content-center">
@@ -92,7 +111,7 @@ const Home = () => {
             placeholder="Insert here your item to the list"
             onKeyDown={addTask}
           />
-
+          
           <ul className="list-group">
             {tasks.map((task, index) => (
               <li
@@ -103,7 +122,7 @@ const Home = () => {
                   <input
                     type="text"
                     defaultValue={task.label}
-                    onBlur={(e) => updateTask(task.id, e.target.value)} // Guardar al perder foco
+                    onBlur={(e) => updateTask(task.id, e.target.value)} 
                     onKeyDown={(e) => {
                       if (e.key === "Enter") updateTask(task.id, e.target.value);
                     }}
@@ -127,6 +146,16 @@ const Home = () => {
                 : "There's nothing to do :)"}
             </li>
           </ul>
+
+          
+          <div className="d-flex justify-content-center mt-4">
+            <button
+              className="btn btn-danger"
+              onClick={deleteAllTasks}
+            >
+             Evadir todo, limpiar!
+            </button>
+          </div>
         </div>
       </div>
     </>
